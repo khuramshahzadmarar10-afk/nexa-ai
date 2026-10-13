@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#7c3aed">
+<script src="https://js.puter.com/v2/"></script>
+<title>Nexa AI — Your Personal Assistant</title>
+<style>
+:root{--bg:#080b14;--card:#101624;--border:#1e2a45;--accent:#8b5cf6;--accent2:#a855f7;--text:#f1f5f9;--muted:#8b9bb4;--green:#10b981}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hero{background:linear-gradient(135deg,#6d28d9,#8b5cf6,#a855f7);padding:28px 20px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 1px,transparent 1px);background-size:24px 24px;pointer-events:none}
+.hero h1{font-size:1.7rem;font-weight:800;position:relative}
+.hero p{opacity:.92;font-size:.88rem;margin-top:4px;position:relative}
+.hero .badge{display:inline-block;background:rgba(255,255,255,.2);padding:4px 14px;border-radius:20px;font-size:.75rem;margin-top:10px;position:relative}
+.nav{display:flex;background:var(--card);padding:10px;gap:8px;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);overflow-x:auto}
+.nav button{flex:1;min-width:80px;padding:12px 8px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:.82rem;cursor:pointer;transition:.2s;white-space:nowrap}
+.nav button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;font-weight:600;box-shadow:0 4px 16px rgba(139,92,246,.35)}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+.panel{display:none;animation:fade .3s}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:14px}
+.card h2{font-size:1.05rem;margin-bottom:4px}
+.card .sub{font-size:.82rem;color:var(--muted);margin-bottom:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{background:#1a2340;border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:.78rem;cursor:pointer;color:#c4b5fd;transition:.2s}
+.chip:active{transform:scale(.95);background:var(--accent);color:#fff}
+textarea{width:100%;padding:14px;background:#0b1120;border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.95rem;min-height:90px;resize:vertical;font-family:inherit}
+textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+select{width:100%;padding:12px;background:#0b1120;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem}
+label.lbl{font-size:.78rem;color:var(--muted);display:block;margin-bottom:5px}
+.btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:15px;border-radius:14px;font-size:1rem;cursor:pointer;width:100%;font-weight:700;margin-top:4px;transition:.2s;box-shadow:0 4px 20px rgba(139,92,246,.3)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5}
+.out{background:#0b1120;border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:12px;min-height:110px;white-space:pre-wrap;font-size:.9rem;line-height:1.65;position:relative}
+.out img{max-width:100%;border-radius:10px;display:block}
+.out .actions{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+.iconbtn{background:#1a2340;border:1px solid var(--border);color:#fff;border-radius:8px;padding:6px 10px;font-size:.75rem;cursor:pointer}
+.spin{text-align:center;padding:24px;color:var(--accent2)}
+.spin::after{content:'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏';animation:sp 1s infinite;display:block;font-size:1.5rem;margin-top:8px}
+@keyframes sp{0%{content:'⠋'}10%{content:'⠙'}20%{content:'⠹'}30%{content:'⠸'}40%{content:'⠼'}50%{content:'⠴'}60%{content:'⠦'}70%{content:'⠧'}80%{content:'⠇'}90%{content:'⠏'}}
+.hist{margin-top:12px}
+.hist-item{background:#0b1120;border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.82rem;cursor:pointer}
+.hist-item:hover{border-color:var(--accent)}
+.hist-item .hq{color:#c4b5fd;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-item .ha{color:var(--muted);font-size:.75rem;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a2340;border:1px solid var(--accent);color:#fff;padding:12px 24px;border-radius:30px;font-size:.85rem;transition:.3s;z-index:99;opacity:0}
+.toast.show{transform:translateX(-50%);opacity:1}
+.footer{text-align:center;padding:20px;color:var(--muted);font-size:.75rem}
+.kbd-hint{font-size:.72rem;color:var(--muted);text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="hero"><h1>✨ Nexa AI</h1><p>Your Personal Creative Assistant</p><span class="badge">⚡ Powered by Free AI • No Signup</span></div>
+<div class="nav">
+<button class="active" onclick="go('text',this)">📝 Text</button>
+<button onclick="go('image',this)">🎨 Image</button>
+<button onclick="go('script',this)">🎬 Script</button>
+<button onclick="go('code',this)">💻 Code</button>
+<button onclick="go('idea',this)">💡 Ideas</button>
+</div>
+<div class="wrap">
+
+<!-- TEXT -->
+<div class="panel active" id="p-text"><div class="card">
+<h2>📝 Text Generator</h2><div class="sub">Articles, stories, captions, quotes & more</div>
+<div class="chips">
+<span class="chip" onclick="fill('text','Write an inspiring motivational quote about success')">💪 Quote</span>
+<span class="chip" onclick="fill('text','Write a catchy YouTube title for a wildlife documentary')">🎬 YT Title</span>
+<span class="chip" onclick="fill('text','Write a short horror story, 100 words')">👻 Story</span>
+<span class="chip" onclick="fill('text','Write an Instagram caption for a sunset photo')">📸 Caption</span>
+</div>
+<textarea id="i-text" placeholder="Describe what you want to write..."></textarea>
+<div class="row2"><div><label class="lbl">Tone</label><select id="tone-text"><option>Professional</option><option>Friendly</option><option>Creative</option><option>Funny</option><option>Formal</option></select></div>
+<div><label class="lbl">Length</label><select id="len-text"><option>Short</option><option>Medium</option><option>Long</option></select></div></div>
+<button class="btn" id="b-text" onclick="run('text')">✨ Generate</button>
+<div class="out" id="o-text">Your result will appear here...<div class="actions"><button class="iconbtn" onclick="copy('o-text')">📋 Copy</button></div></div>
+<div class="hist" id="h-text"></div>
+</div></div>
+
+<!-- IMAGE -->
+<div class="panel" id="p-image"><div class="card">
+<h2>🎨 Image Generator</h2><div class="sub">Photorealistic AI images, free forever</div>
+<div class="chips">
+<span class="chip" onclick="fill('image','Majestic lion in savanna at golden hour, photorealistic, cinematic')">🦁 Lion</span>
+<span class="chip" onclick="fill('image','Epic YouTube thumbnail background, dramatic lighting')">🖼️ Thumbnail</span>
+<span class="chip" onclick="fill('image','Beautiful Islamic geometric pattern, gold and blue')">🕌 Islamic Art</span>
+<span class="chip" onclick="fill('image','Futuristic city at night, neon lights')">🌃 City</span>
+</div>
+<textarea id="i-image" placeholder="Describe the image in detail..."></textarea>
+<div class="row2"><div><label class="lbl">Style</label><select id="style-image"><option>Photorealistic</option><option>Cinematic</option><option>Digital Art</option><option>Anime</option><option>Oil Painting</option></select></div>
+<div><label class="lbl">Size</label><select id="size-image"><option value="512">Square 512</option><option value="768">HD 768</option><option value="1024">Full 1024</option></select></div></div>
+<button class="btn" id="b-image" onclick="run('image')">🎨 Generate Image</button>
+<div class="out" id="o-image" style="text-align:center">Image will appear here...<div class="actions"><button class="iconbtn" onclick="copy('o-image')">📋</button></div></div>
+</div></div>
+
+<!-- SCRIPT -->
+<div class="panel" id="p-script"><div class="card">
+<h2>🎬 Script Writer</h2><div class="sub">Video scripts, intros, voiceovers</div>
+<div class="chips">
+<span class="chip" onclick="fill('script','30-second wildlife documentary script about a tiger hunting')">🐯 Wildlife</span>
+<span class="chip" onclick="fill('script','YouTube intro script for a tech review channel, energetic')">⚡ YT Intro</span>
+<span class="chip" onclick="fill('script','2-minute horror story narration script')">👻 Horror</span>
+<span class="chip" onclick="fill('script','Product ad script, 30 seconds, persuasive')">📢 Ad</span>
+</div>
+<textarea id="i-script" placeholder="What kind of script?"></textarea>
+<div class="row2"><div><label class="lbl">Duration</label><select id="dur-script"><option>30 seconds</option><option>1 minute</option><option>2 minutes</option><option>5 minutes</option></select></div>
+<div><label class="lbl">Style</label><select id="sty-script"><option>Documentary</option><option>Energetic</option><option>Dramatic</option><option>Calm</option></select></div></div>
+<button class="btn" id="b-script" onclick="run('script')">🎬 Write Script</button>
+<div class="out" id="o-script">Script will appear here...<div class="actions"><button class="iconbtn" onclick="copy('o-script')">📋 Copy</button></div></div>
+<div class="hist" id="h-script"></div>
+</div></div>
+
+<!-- CODE -->
+<div class="panel" id="p-code"><div class="card">
+<h2>💻 Code Generator</h2><div class="sub">HTML, Python, JavaScript & more</div>
+<div class="chips">
+<span class="chip" onclick="fill('code','HTML landing page for a coffee shop')">☕ Landing</span>
+<span class="chip" onclick="fill('code','Python function to calculate BMI')">🐍 Python</span>
+<span class="chip" onclick="fill('code','JavaScript image slider')">🖼️ Slider</span>
+<span class="chip" onclick="fill('code','CSS animated button')">🔘 Button</span>
+</div>
+<textarea id="i-code" placeholder="Describe the code you need..."></textarea>
+<div class="row2"><div><label class="lbl">Language</label><select id="lang-code"><option>HTML</option><option>Python</option><option>JavaScript</option><option>CSS</option></select></div><div></div></div>
+<button class="btn" id="b-code" onclick="run('code')">💻 Generate Code</button>
+<div class="out" id="o-code" style="font-family:monospace;font-size:.82rem">Code will appear here...<div class="actions"><button class="iconbtn" onclick="copy('o-code')">📋 Copy</button></div></div>
+<div class="hist" id="h-code"></div>
+</div></div>
+
+<!-- IDEAS -->
+<div class="panel" id="p-idea"><div class="card">
+<h2>💡 Idea Generator</h2><div class="sub">Video ideas, business ideas, content ideas</div>
+<div class="chips">
+<span class="chip" onclick="fill('idea','10 viral YouTube video ideas for 2026')">🎬 Videos</span>
+<span class="chip" onclick="fill('idea','5 passive income ideas for Pakistan')">💰 Income</span>
+<span class="chip" onclick="fill('idea','10 Instagram reel ideas for wildlife')">📸 Reels</span>
+<span class="chip" onclick="fill('idea','5 app ideas for Play Store')">📱 Apps</span>
+</div>
+<textarea id="i-idea" placeholder="What ideas do you need?"></textarea>
+<button class="btn" id="b-idea" onclick="run('idea')">💡 Generate Ideas</button>
+<div class="out" id="o-idea">Ideas will appear here...<div class="actions"><button class="iconbtn" onclick="copy('o-idea')">📋 Copy</button></div></div>
+<div class="hist" id="h-idea"></div>
+</div></div>
+
+</div>
+<div class="footer">Nexa AI • Free Forever • Made with 💜</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const H={};
+function go(id,el){document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+id).classList.add('active');}
+function fill(t,v){document.getElementById('i-'+t).value=v;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function copy(id){const el=document.getElementById(id);const txt=el.innerText.replace('📋 Copy','').replace('📋','').trim();navigator.clipboard.writeText(txt).then(()=>toast('✅ Copied!'));}
+function saveH(t,q,a){if(!H[t])H[t]=[];H[t].unshift({q,a:a.substring(0,80)});H[t]=H[t].slice(0,5);const h=document.getElementById('h-'+t);if(h)h.innerHTML='<div style="font-size:.78rem;color:var(--muted);margin:8px 0 4px">🕐 Recent:</div>'+H[t].map((x,i)=>`<div class="hist-item" onclick="reh('${t}',${i})"><div class="hq">${esc(x.q)}</div><div class="ha">${esc(x.a)}...</div></div>`).join('');}
+function reh(t,i){const x=H[t][i];document.getElementById('i-'+t).value=x.q;toast('Loaded!');}
+function esc(s){return s.replace(/</g,'&lt;').replace(/>/g,'&gt;').substring(0,100);}
+async function run(type){
+const inp=document.getElementById('i-'+type).value.trim();
+if(!inp){toast('⚠️ Pehle kuch likho!');return;}
+const btn=document.getElementById('b-'+type),out=document.getElementById('o-'+type);
+btn.disabled=true;btn.textContent='⏳ Working...';
+out.innerHTML='<div class="spin">Generating<div></div></div>';
+try{
+if(type==='image'){
+const style=document.getElementById('style-image').value;
+const size=parseInt(document.getElementById('size-image').value)||512;
+const prompt=inp+', '+style+' style, high quality, detailed';
+out.innerHTML='<div class="spin">Creating image... (pehli baar 10 sec lag sakta hai)<div></div></div>';
+const img=await puter.ai.txt2img(prompt,{model:'black-forest-labs/flux-schnell',width:size,height:size});
+out.innerHTML='';
+out.appendChild(img);img.style.width='100%';img.style.borderRadius='10px';
+const dl=document.createElement('div');dl.style.marginTop='8px';
+dl.innerHTML=`<a href="${img.src}" download="nexa-image.png" class="iconbtn" style="text-decoration:none">⬇️ Download</a>`;
+out.appendChild(dl);
+saveH(type,inp,'Image generated');toast('✅ Done!');
+}else{
+let p=inp;
+if(type==='text'){p=`${document.getElementById('tone-text').value} tone, ${document.getElementById('len-text').value} length: ${inp}`;}
+if(type==='script'){p=`Write a ${document.getElementById('dur-script').value} ${document.getElementById('sty-script').value.toLowerCase()} script: ${inp}`;}
+if(type==='code'){p=`Write ${document.getElementById('lang-code').value} code for: ${inp}. Only code, minimal explanation.`;}
+if(type==='idea'){p=`Give creative ideas: ${inp}. Numbered list.`;}
+let txt='';
+try{
+const r=await puter.ai.chat(p,{model:'openai/gpt-4o-mini'});
+txt=r.message.content;
+}catch(e1){
+const r2=await fetch('https://text.pollinations.ai/'+encodeURIComponent(p),{signal:AbortSignal.timeout(45000)});
+if(!r2.ok)throw new Error('AI busy, thodi der baad try karo');
+txt=await r2.text();
+}
+out.innerHTML=esc(txt).replace(/\n/g,'<br>')+`<div class="actions"><button class="iconbtn" onclick="copy('o-${type}')">📋 Copy</button></div>`;
+saveH(type,inp,txt);toast('✅ Done!');
+}
+}catch(e){out.innerHTML='❌ '+e.message;}
+btn.disabled=false;btn.textContent=btn.textContent.replace('⏳ Working...','').trim()||'✨ Generate';
+const labels={text:'✨ Generate',image:'🎨 Generate Image',script:'🎬 Write Script',code:'💻 Generate Code',idea:'💡 Generate Ideas'};
+btn.textContent=labels[type];
+}
+</script>
+</body>
+</html>
